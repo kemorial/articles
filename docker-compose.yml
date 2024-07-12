@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+ laravel_articles:
+   container_name: laravel_articles
+   build:
+     context: ./
+     dockerfile: Dockerfile
+   volumes:
+     - ./:/var/www
+   restart: always
+   ports:
+     - "8000:8888"
+   command: >
+     sh -c "
+     mkdir storage/framework/sessions/ -p &&
+     mkdir storage/framework/cache -p &&
+     mkdir storage/framework/views -p &&
+     php /var/www/artisan migrate &&
+     php /var/www/artisan serve --host 0.0.0.0 --port 8888
+     "
+   depends_on:
+     - mysql_articles
+   networks: ["stack"]
+
+ mysql_articles:
+   image: mysql:5.7
+   container_name: mysql_articles
+   ports:
+     - "5000:3306"
+   environment:
+     - MYSQL_ROOT_PASSWORD=Vbnz
+     - MYSQL_DATABASE=articles
+   volumes:
+     - ./storage/mysql_articles:/var/lib/mysql
+   networks: ['stack']
+
+
+networks:
+  stack:
+    driver: bridge
